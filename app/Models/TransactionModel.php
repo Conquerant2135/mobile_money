@@ -32,21 +32,44 @@ class TransactionModel extends Model
         if ($data['operation'] == 1) {
             $this->makeDepotRetrait($data, $userId, true);
         } elseif ($data['operation'] == 2) {
-            $this->makeDepotRetrait($data, $userId, false);
+            $frais_inclus = isset($data['frais_inclus']);    
+            if ($frais_inclus) {
+                $this->makeRetraitWithFrais($data, $userId);
+            } else {
+                $this->makeDepotRetrait($data, $userId, false);
+            }
         } else {
             $this->makeTransfert($data, $userId);
         }
+    }
+
+    public function makeRetraitWithFrais($data, $userId)
+    {
+        //car c est un retrait
+        $fraisModel  = new FraisModel();
+        $userModel = new UserModel();
+        $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        $solde = $userModel->getClientWithSoldeById($userId);
+        if ($data['montant'] - $frais > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] - $frais));
+        }
+        $this->save([
+            'montant' => $data['montant']  - $frais,
+            'operation_id' => $data['operation'],
+            'frais_montant' => 0,
+            'user_id' => $userId
+        ]);
     }
 
     public function makeDepotRetrait($data, $userId, $isDepot)
     {
         $fraisModel  = new FraisModel();
         $userModel = new UserModel();
-        $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
+        $montant = $data['montant']; // Toujours positif
         $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
         $solde = $userModel->getClientWithSoldeById($userId);
-        if ($data['montant'] + $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
+        if (!$isDepot && $data['montant'] + $frais > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] + $frais));
         }
         $this->save([
             'montant' => $montant,
@@ -67,10 +90,10 @@ class TransactionModel extends Model
         }
         $solde = $userModel->getClientWithSoldeById($userId);
         if ($data['montant'] + $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ".$solde["solde"]." La transaction " . $data['montant'] + $frais);
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] + $frais));
         }
         $dest = $userModel->findByNumero($data['phone']);
-        if (!$dest){
+        if (!$dest) {
             throw new RuntimeException("Le client ayant le numero  : " . $data['phone'] . " n'existe pas");
         }
         $this->save([
