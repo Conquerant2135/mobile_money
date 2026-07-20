@@ -12,25 +12,63 @@ class ClientController extends BaseController
 {
     public function index()
     {
-        return view("client/accueil");
+        $transactionModel = new TransactionModel();
+        $operationModel   = new OperationModel();
+
+        $filters = [
+            'operation_id' => $this->request->getGet('operation_id'),
+            'date_debut'   => $this->request->getGet('date_debut'),
+            'date_fin'     => $this->request->getGet('date_fin'),
+        ];
+
+        $perPageOptions = [5, 10, 25, 50];
+        $perPage = (int) $this->request->getGet('per_page');
+        if (!in_array($perPage, $perPageOptions, true)) {
+            $perPage = 5;
+        }
+
+        $historiques = $transactionModel->historiqueTransaction(
+            session()->get("user_id"),
+            $filters,
+            $perPage
+        );
+
+        return view("client/accueil", [
+            'historiques'    => $historiques,
+            'pager'          => $transactionModel->pager,
+            'operations'     => $operationModel->findAll(),
+            'filters'        => $filters,
+            'perPage'        => $perPage,
+            'perPageOptions' => $perPageOptions,
+        ]);
     }
 
-    public function showSituationCompte() {
+    public function showSituationCompte()
+    {
         $userModel = new UserModel();
 
-        return view("operateur/situation_compte_client" , ['clientSoldes' => $userModel->getClientsWithSolde()]);
+        return view("operateur/situation_compte_client", ['clientSoldes' => $userModel->getClientsWithSolde()]);
     }
 
-    public function operationPage(){
+    public function operationPage()
+    {
         $operationModel = new OperationModel();
-        return view("client/operation" , ['operations' => $operationModel->findAll()]);
+        return view("client/operation", ['operations' => $operationModel->findAll()]);
     }
 
-    public function operation(){
+    public function operation()
+    {
         $data = $this->request->getPost();
-        $transctionModel = new TransactionModel();
-        $transctionModel->makeTransaction($data,session()->get("user_id"));
+        $transactionModel = new TransactionModel();
+
+        try {
+            $transactionModel->makeTransaction($data, session()->get("user_id"));
+            return redirect()->to("/client")
+                ->with('success', 'Opération effectuée avec succès');
+        } catch (\RuntimeException $e) {
+            return redirect()->to('/client/operation')
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
-
-
 }

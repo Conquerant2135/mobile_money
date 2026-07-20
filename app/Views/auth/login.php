@@ -12,24 +12,30 @@
 <body>
     <header>
         <nav>
-            
+
         </nav>
     </header>
-    
+
     <main>
+        <?php if (session()->getFlashdata('error')) { ?>
+            <div class="alert alert-error">
+                <?= esc(session()->getFlashdata('error')) ?>
+            </div>
+        <?php } ?>
+
         <form action="<?= base_url("/login") ?>" method="POST" class="contact-form">
             <div class="form-group">
                 <label for="phone">Numero de telephone:</label>
-                <input type="text" name="phone" id="phone" placeholder="0340011100" value="0340011100">
+                <input type="text" name="phone" id="phone" placeholder="0340011100" value="<?= old('phone', '0340011100') ?>">
             </div>
             <button type="submit" class="submit-btn">Se connecter</button>
         </form>
     </main>
-    
+
     <footer>
-        
+
     </footer>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
