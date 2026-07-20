@@ -45,7 +45,7 @@ class TransactionModel extends Model
         $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
         $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
         $solde = $userModel->getClientWithSoldeById($userId);
-        if ($data['montant'] + $frais < $solde) {
+        if ($data['montant'] + $frais > $solde["solde"]) {
             throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
         }
         $this->save([
@@ -66,10 +66,13 @@ class TransactionModel extends Model
             throw new \RuntimeException(" Le numero inscrit est invalide ");
         }
         $solde = $userModel->getClientWithSoldeById($userId);
-        if ($data['montant'] + $frais < $solde) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
+        if ($data['montant'] + $frais > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ".$solde["solde"]." La transaction " . $data['montant'] + $frais);
         }
         $dest = $userModel->findByNumero($data['phone']);
+        if (!$dest){
+            throw new RuntimeException("Le client ayant le numero  : " . $data['phone'] . " n'existe pas");
+        }
         $this->save([
             'user_id' => $userId,
             'operation_id' => $data['operation'],
