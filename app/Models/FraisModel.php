@@ -19,4 +19,8 @@ class FraisModel extends Model
     ];
 
     protected $useTimestamps   = false;
+
+    public function findFraisValueForMontant($montant){
+        return $this->where( 'min >=' , $montant)->where('max <' , $montant)->first()["frais_val"];
+    }
 }

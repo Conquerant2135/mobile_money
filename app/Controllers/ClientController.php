@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\OperationModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class ClientController extends BaseController
@@ -11,4 +12,15 @@ class ClientController extends BaseController
     {
         return view("client/accueil");
     }
+
+    public function operationPage(){
+        $operationModel = new OperationModel();
+        return view("client/operation" , ['operations' => $operationModel->findAll()]);
+    }
+
+    public function operation(){
+        $data = $this->request->getPost();
+    }
+
+
 }

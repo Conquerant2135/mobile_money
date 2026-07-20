@@ -4,9 +4,9 @@
 
 ### Frontend
 
-+ [ ] faire formulaire connection
++ [x] faire formulaire connection
   + numero seulement , si numero deja present prendre l'user sinon creer
-+ [ ] faire formulaire operation (POST)
++ [x] faire formulaire operation (POST)
 
 #### Fields
 

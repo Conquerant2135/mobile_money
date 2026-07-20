@@ -6,6 +6,8 @@
     <title>Accueil</title>
 </head>
 <body>
-    <h1>Mandeha </h1>
+    <ul>
+        <li><a href="<?= base_url("/client/operation") ?>">Faire une operation</a></li>
+    </ul>
 </body>
 </html>
