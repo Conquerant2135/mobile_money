@@ -21,11 +21,11 @@
 
 ### Backend
 
-+ [ ] formulaire operation (on cherche le compte du numero cible si c'est un transfert) (WIP)
++ [x] formulaire operation (on cherche le compte du numero cible si c'est un transfert) (
   + verifier si le numero cible est valide suivant nos prefixe
   + chercher l'utilisateur du numero cible
   + calcul du montant du frais si retrait ou transfert (si transfert sur le compte de l'envoyeur)
 
++ [ ] fonction pour avoir le tableau historique (WIP)
 + [ ] fonction pour sortir le solde du compte
   + ecrire une requette SQL pour avoir la somme des retrait et des entree
-+ [ ] fonction pour avoir le tableau historique

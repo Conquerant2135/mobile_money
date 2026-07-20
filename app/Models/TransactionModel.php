@@ -26,40 +26,62 @@ class TransactionModel extends Model
     protected $createdField    = 'date_op';
     protected $updatedField    = '';
 
-    public function makeTransaction($data , $userId){
-        if($data['operation'] == 1){
-            $this->makeDepotTransfert($data,$userId,true);
+    public function makeTransaction($data, $userId)
+    {
+        if ($data['operation'] == 1) {
+            $this->makeDepotTransfert($data, $userId, true);
         } elseif ($data['operation'] == 2) {
-            $this->makeDepotTransfert($data,$userId,false);
-        } else  {
-            $this->makeTransfert($data , $userId);
+            $this->makeDepotTransfert($data, $userId, false);
+        } else {
+            $this->makeTransfert($data, $userId);
         }
     }
 
-    public function makeDepotTransfert($data , $userId , $isDepot){
+    public function makeDepotTransfert($data, $userId, $isDepot)
+    {
         $fraisModel  = new FraisModel();
         $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
-        $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'] , $data['operation']);
+        $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
         $this->save([
-                'montant' => $montant,
-                'operation_id' => $data['operation'],
-                'frais_montant' => $frais,
-                'user_id' => $userId
-                ]);
+            'montant' => $montant,
+            'operation_id' => $data['operation'],
+            'frais_montant' => $frais,
+            'user_id' => $userId
+        ]);
     }
 
-    public function makeTransfert($data , $userId){
+    public function makeTransfert($data, $userId)
+    {
         $fraisModel = new FraisModel();
         $userModel = new UserModel();
-        $frais = $fraisModel->findFraisValueForMontant($data['montant'] , $data['operation']);
+        $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
         $dest = $userModel->findByNumero($data['phone']);
         $this->save([
-                'user_id' => $userId,
-                'operation_id' => $data['operation'],
-                'destinataire_id' => $dest['id'],
-                'montant' => $data['montant'],
-                'frais_montant' => $frais,
-                'description' => $data['desc']
-                ]);
+            'user_id' => $userId,
+            'operation_id' => $data['operation'],
+            'destinataire_id' => $dest['id'],
+            'montant' => $data['montant'],
+            'frais_montant' => $frais,
+            'description' => $data['desc']
+        ]);
+    }
+
+    public function historiqueTransaction($userId)
+    {
+        return $this
+            ->select('
+            transactions.id as ref,
+            operation.nom as operation,
+            destinataire.numero as destinataire_numero,
+            transactions.montant,
+            transactions.frais_montant as frais,
+            transactions.description,
+            transactions.date_op
+        ')
+            ->join('operation', 'operation.id = transactions.operation_id')
+            ->join('users as destinataire', 'destinataire.id = transactions.destinataire_id', 'left')
+            ->where('transactions.user_id', $userId)
+            ->orderBy('transactions.date_op', 'DESC')
+            ->paginate(3);
     }
 }

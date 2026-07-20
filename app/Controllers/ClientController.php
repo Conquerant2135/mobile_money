@@ -11,19 +11,27 @@ class ClientController extends BaseController
 {
     public function index()
     {
-        return view("client/accueil");
+        $transactionModel = new TransactionModel();
+
+        $historiques = $transactionModel->historiqueTransaction(session()->get("user_id"));
+
+        return view("client/accueil", [
+            'historiques' => $historiques,
+            'pager'       => $transactionModel->pager,
+        ]);
     }
 
-    public function operationPage(){
+    public function operationPage()
+    {
         $operationModel = new OperationModel();
-        return view("client/operation" , ['operations' => $operationModel->findAll()]);
+        return view("client/operation", ['operations' => $operationModel->findAll()]);
     }
 
-    public function operation(){
+    public function operation()
+    {
         $data = $this->request->getPost();
         $transctionModel = new TransactionModel();
-        $transctionModel->makeTransaction($data,session()->get("user_id"));
+        $transctionModel->makeTransaction($data, session()->get("user_id"));
+        return redirect()->to("/client");
     }
-
-
 }
