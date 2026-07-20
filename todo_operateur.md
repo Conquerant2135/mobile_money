@@ -51,20 +51,20 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
 
 ### Situation des comptes clients [en_cours]
 ##### vue
-+ situation_compte_client
-  - liste des clients + montant du compte 
-#### controller
-+ UserModel
++ [ok] situation_compte_client
+  - [ok] liste des clients + montant du compte 
+#### [ok] controller
++ UserControlleur
 + showSituaionCompte
   - model->getSituationCompte
   - afficher situation_compte_client
-#### [EN_COUR] sql
+#### [ok] sql
 + creer vue :
   - [ok] v_user_client
   - [ok] v_transaction_and_type_operation
   - [ok] v_solde_client (sum (depo) - sum (retrer) - sum (montant transfer + frais trasfer))
 #### model
-+ UserModel
-  + getSoldeCient (select * from v_solde client)
++ [ok] UserModel
+  + [ok] getSoldeCient (select * from v_solde client)
 
 ### ACTIVER CSRF
