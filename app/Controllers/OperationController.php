@@ -51,6 +51,7 @@ class OperationController extends BaseController
         }
 
         $data['operation'] = $operation;
+        
         return view('operateur/operation/edit', $data);
     }
 

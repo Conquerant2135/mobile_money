@@ -32,7 +32,7 @@ $routes->group('operateur/prefixes', function($routes) {
     $routes->get('delete/(:num)', 'NumPrefixeValableController::delete/$1');
 });
 
-//crud route
+//crud operation
 $routes->group('operateur/operations', function($routes) {
     $routes->get('/', 'OperationController::list');
     $routes->post('create', 'OperationController::create');
