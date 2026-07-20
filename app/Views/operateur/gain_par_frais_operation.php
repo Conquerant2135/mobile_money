@@ -1,39 +1,63 @@
-<!DOCTYPE html>
-<html lang="fr">
+<?php
+$pageTitle  = "Gains par opération";
+$activeMenu = 'op-gains';
+$totalGain  = $gainRetait + $gainTransfert;
+?>
+<?= $this->extend('layout/main') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gains par opération</title>
-</head>
+<?= $this->section('content') ?>
 
-<body>
-    <h1>Gains générés par les frais d'opération</h1>
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card-kpi kpi-retrait">
+            <div class="text-secondary" style="font-size: var(--font-size-sm);">Gain — Retrait</div>
+            <div class="fs-3 fw-semibold"><?= number_format($gainRetait, 2, ',', ' ') ?> Ar</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card-kpi kpi-transfert">
+            <div class="text-secondary" style="font-size: var(--font-size-sm);">Gain — Transfert</div>
+            <div class="fs-3 fw-semibold"><?= number_format($gainTransfert, 2, ',', ' ') ?> Ar</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card-kpi kpi-depot">
+            <div class="text-secondary" style="font-size: var(--font-size-sm);">Total des gains</div>
+            <div class="fs-3 fw-semibold"><?= number_format($totalGain, 2, ',', ' ') ?> Ar</div>
+        </div>
+    </div>
+</div>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Opération</th>
-                <th>Gain par frais</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Retrait</td>
-                <td><?= number_format($gainRetait, 2, ',', ' ') ?> Ar</td>
-            </tr>
-            <tr>
-                <td>Transfert</td>
-                <td><?= number_format($gainTransfert, 2, ',', ' ') ?> Ar</td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th>Total des gains</th>
-                <th><?= number_format($gainRetait + $gainTransfert, 2, ',', ' ') ?> Ar</th>
-            </tr>
-        </tfoot>
-    </table>
-</body>
+<div class="card">
+    <div class="card-header bg-white border-bottom">
+        <h2 class="h6 mb-0">Détail des gains générés par les frais d'opération</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-app mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Opération</th>
+                    <th class="text-end">Gain par frais</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-retrait">Retrait</span></td>
+                    <td class="text-end fw-semibold"><?= number_format($gainRetait, 2, ',', ' ') ?> Ar</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-transfert">Transfert</span></td>
+                    <td class="text-end fw-semibold"><?= number_format($gainTransfert, 2, ',', ' ') ?> Ar</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td>Total des gains</td>
+                    <td class="text-end"><?= number_format($totalGain, 2, ',', ' ') ?> Ar</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
 
-</html>
+<?= $this->endSection() ?>

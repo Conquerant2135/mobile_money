@@ -1,47 +1,46 @@
-<!DOCTYPE html>
-<html lang="fr">
+<?php
+$pageTitle  = "Modifier le type d'opération";
+$activeMenu = 'op-operations';
+?>
+<?= $this->extend('layout/main') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier le Barème de Frais</title>
-</head>
+<?= $this->section('content') ?>
 
-<body>
-    <h1>Modifier le Barème #<?= $frais['id'] ?></h1>
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
 
-    <?php if (session()->getFlashdata('errors')): ?>
-        <ul style="color: red;">
-            <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                <li><?= esc($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+        <?= $this->include('partials/flash') ?>
 
-    <form action="<?= base_url('operateur/frais/update/' . $frais['id']) ?>" method="post">
-        <?= csrf_field() ?>
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-4">Modifier l'opération #<?= esc($operation['id']) ?></h2>
 
-        <label for="operation_id">Opération :</label>
-        <select name="operation_id" id="operation_id" required>
-            <?php foreach ($operations as $op): ?>
-                <option value="<?= $op['id'] ?>" <?= old('operation_id', $frais['operation_id']) == $op['id'] ? 'selected' : '' ?>>
-                    <?= esc($op['nom']) ?> (<?= esc($op['code']) ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
+                <form action="<?= base_url('operateur/operations/update/' . $operation['id']) ?>" method="post">
+                    <?= csrf_field() ?>
 
-        <label for="min">Montant Min :</label>
-        <input type="number" step="0.01" name="min" id="min" value="<?= old('min', $frais['min']) ?>" required>
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" name="nom" id="nom"
+                               value="<?= old('nom', $operation['nom']) ?>" required>
+                    </div>
 
-        <label for="max">Montant Max :</label>
-        <input type="number" step="0.01" name="max" id="max" value="<?= old('max', $frais['max']) ?>" required>
+                    <div class="mb-4">
+                        <label for="code" class="form-label">Code</label>
+                        <input type="text" class="form-control" name="code" id="code"
+                               value="<?= old('code', $operation['code']) ?>" required>
+                    </div>
 
-        <label for="frais_val">Frais (Ar) :</label>
-        <input type="number" step="0.01" name="frais_val" id="frais_val" value="<?= old('frais_val', $frais['frais_val']) ?>" required>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Enregistrer les modifications
+                        </button>
+                        <a href="<?= base_url('operateur/operations') ?>" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        <button type="submit">Enregistrer</button>
-        <a href="<?= base_url('operateur/frais') ?>">Annuler</a>
-    </form>
-</body>
+    </div>
+</div>
 
-</html>
+<?= $this->endSection() ?>

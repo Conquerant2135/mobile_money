@@ -38,17 +38,6 @@ class FraisController extends BaseController
     // POST : Création d'une plage de frais
     public function create()
     {
-        $rules = [
-            'operation_id' => 'required|is_not_unique[operation.id]',
-            'min'          => 'required|numeric|greater_than_equal_to[0]',
-            'max'          => 'required|numeric|greater_than[min]',
-            'frais_val'    => 'required|numeric|greater_than_equal_to[0]'
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
         $this->fraisModel->insert([
             'operation_id' => $this->request->getPost('operation_id'),
             'min'          => $this->request->getPost('min'),
@@ -77,17 +66,6 @@ class FraisController extends BaseController
     // POST : Traitement de la modification
     public function update($id)
     {
-        $rules = [
-            'operation_id' => 'required|is_not_unique[operation.id]',
-            'min'          => 'required|numeric|greater_than_equal_to[0]',
-            'max'          => 'required|numeric|greater_than[min]',
-            'frais_val'    => 'required|numeric|greater_than_equal_to[0]'
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
         $this->fraisModel->update($id, [
             'operation_id' => $this->request->getPost('operation_id'),
             'min'          => $this->request->getPost('min'),
