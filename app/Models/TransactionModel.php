@@ -4,6 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 use RuntimeException;
+use App\Models\NumPrefixeValableModel;
+use App\Models\FraisModel;
+use App\Models\UserModel;
+
 
 class TransactionModel extends Model
 {
@@ -16,6 +20,7 @@ class TransactionModel extends Model
         'user_id',
         'operation_id',
         'destinataire_id',
+        'num_dest',
         'montant',
         'frais_montant',
         'description',
@@ -46,7 +51,7 @@ class TransactionModel extends Model
         $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
         $solde = $userModel->getClientWithSoldeById($userId);
         if ($data['montant'] + $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde . " La transaction " . $data['montant'] + $frais);
         }
         $this->save([
             'montant' => $montant,
@@ -58,29 +63,48 @@ class TransactionModel extends Model
 
     public function makeTransfert($data, $userId)
     {
-        $fraisModel = new FraisModel();
-        $userModel = new UserModel();
-        $numValidator = new NumPrefixeValableModel();
+        $fraisModel        = new FraisModel();
+        $userModel         = new UserModel();
+        $numValidator      = new NumPrefixeValableModel();
+        $commissionManager = new CommissionTransactionModel();
+
         $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
-        if (!$numValidator->isNumValid($data['phone'])) {
-            throw new \RuntimeException(" Le numero inscrit est invalide ");
-        }
+
         $solde = $userModel->getClientWithSoldeById($userId);
-        if ($data['montant'] + $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ".$solde["solde"]." La transaction " . $data['montant'] + $frais);
+        $totalADebiter = $data['montant'] + $frais;
+
+        if ($totalADebiter > $solde["solde"]) {
+            throw new \RuntimeException(
+                "Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] .
+                    ", montant total requis (avec frais) : " . $totalADebiter
+            );
         }
+
         $dest = $userModel->findByNumero($data['phone']);
-        if (!$dest){
-            throw new RuntimeException("Le client ayant le numero  : " . $data['phone'] . " n'existe pas");
+
+        if (!$dest && !$numValidator->isKnownNum($data['phone'])) {
+            throw new \RuntimeException("Le numero destinataire : " . $data['phone'] . " n'est pas valide ou reconnu.");
         }
-        $this->save([
-            'user_id' => $userId,
-            'operation_id' => $data['operation'],
-            'destinataire_id' => $dest['id'],
-            'montant' => $data['montant'],
-            'frais_montant' => $frais,
-            'description' => $data['desc']
-        ]);
+
+        $transactionData = [
+            'user_id'         => $userId,
+            'operation_id'    => $data['operation'],
+            'destinataire_id' => $dest['id'] ?? null,
+            'num_dest'        => $data['phone'],
+            'montant'         => $data['montant'],
+            'frais_montant'   => $frais,
+            'description'     => $data['desc'] ?? null
+        ];
+
+        $insertedId = $this->insert($transactionData);
+
+        if (!$insertedId) {
+            throw new \RuntimeException("Erreur lors de l'enregistrement de la transaction.");
+        }
+
+        $commissionManager->appliquerCommission($insertedId, $data['phone'], $data['montant']);
+
+        return $insertedId;
     }
 
     public function historiqueTransaction($userId, $filters = [], $perPage = 5)
@@ -89,7 +113,7 @@ class TransactionModel extends Model
             ->select('
             transactions.id as ref,
             operation.nom as operation,
-            destinataire.numero as destinataire_numero,
+            COALESCE(destinataire.numero, transactions.num_dest) as destinataire_numero,
             transactions.montant,
             transactions.frais_montant as frais,
             transactions.description,
