@@ -25,4 +25,8 @@ class UserModel extends Model
     protected $dateFormat      = 'datetime';
     protected $createdField    = 'created_at';
     protected $updatedField    = '';
+
+    public function findByNumero($phone){
+        return $this->where('numero' , $phone)->first();
+    }
 }
