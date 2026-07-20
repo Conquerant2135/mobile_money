@@ -44,8 +44,9 @@ class TransactionModel extends Model
         $userModel = new UserModel();
         $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
         $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
-        if ($data['montant'] + $frais < $userModel->getClientWithSoldeById($userId)) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action");
+        $solde = $userModel->getClientWithSoldeById($userId);
+        if ($data['montant'] + $frais < $solde) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
         }
         $this->save([
             'montant' => $montant,
@@ -64,8 +65,9 @@ class TransactionModel extends Model
         if (!$numValidator->isNumValid($data['phone'])) {
             throw new \RuntimeException(" Le numero inscrit est invalide ");
         }
-        if ($data['montant'] + $frais < $userModel->getClientWithSoldeById($userId)) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action");
+        $solde = $userModel->getClientWithSoldeById($userId);
+        if ($data['montant'] + $frais < $solde) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : ". $solde . " La transaction " . $data['montant'] + $frais);
         }
         $dest = $userModel->findByNumero($data['phone']);
         $this->save([

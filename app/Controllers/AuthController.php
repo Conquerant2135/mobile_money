@@ -20,23 +20,34 @@ class AuthController extends BaseController
         $phone = $data["phone"];
         $userModel = new UserModel();
         $numValidator = new NumPrefixeValableModel();
-        if ( !$numValidator->isNumValid($phone) ){
-            throw new \RuntimeException(" Le numero inscrit est invalide ");
-        }
-        $user = $userModel->findByNumero($phone);
-        if (!$user) {
-            $userModel->save(['numero' => $phone, 'role' => 'client']);
+
+        try {
+            if (!$numValidator->isNumValid($phone)) {
+                throw new \RuntimeException("Le numéro inscrit est invalide");
+            }
+
             $user = $userModel->findByNumero($phone);
+            if (!$user) {
+                $userModel->save(['numero' => $phone, 'role' => 'client']);
+                $user = $userModel->findByNumero($phone);
+            }
+
+            session()->set([
+                'user_id' => $user['id'],
+                'role' => $user['role'],
+                'logged_in' => true
+            ]);
+
+            return redirect()->to("/client");
+        } catch (\RuntimeException $e) {
+            return redirect()->to('/login')
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
-        session()->set([
-            'user_id' => $user['id'],
-            'role' => $user['role'],
-            'logged_in' => true
-        ]);
-        return redirect()->to("/client");
     }
 
-    public function logout(){
+    public function logout()
+    {
         session()->destroy();
         return redirect()->to("/login");
     }
