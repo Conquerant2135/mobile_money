@@ -81,8 +81,19 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
    - dans TransactionController
      - [ok] verifier si l lo option ajouter frais est coucher 
        - [ok] si oui apeller makeRretaisWihFrais()
-   - [en_cours] dans vue ajouter checkbox ajouter frais
+   - [ok] dans vue ajouter checkbox ajouter frais
 - Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
+  - [ok] js selection multiple de numero dans vue
+  - dans controleur de clientControleur
+    - [ok] calculer le montant a varser a chaque compte (montant / nb_num)
+    - [ok] recuperer le frais pour ce montant
+    - [ok] calculer le frais total (mantant_unique*nb_num)
+    - [ok] verifier si le solde du compte est soffisante (solde => frais_total + montant)
+    - effectuer le transfer vers un comptes 
+      - fonciton transfererArgent(montant,frais,id_user,numDest)
+        - recuperer numDest
+        - inseret transaction
+        - sauvgarder transaction
 #### todo
 + ajouter javascript insertion multiple dans transfer
 + [ou est le fichier controleur] recuperer les insertion multiple dans le controleur

@@ -39,7 +39,8 @@ class TransactionModel extends Model
                 $this->makeDepotRetrait($data, $userId, false);
             }
         } else {
-            $this->makeTransfert($data, $userId);
+            //$this->makeTransfert($data, $userId);
+            $this->makeTransferMultiNumero($data,$userId);
         }
     }
 
@@ -77,6 +78,26 @@ class TransactionModel extends Model
             'frais_montant' => $frais,
             'user_id' => $userId
         ]);
+    }
+
+    public function makeTransferMultiNumero($data,$userId) {
+        $fraisModel  = new FraisModel();
+        $userModel = new UserModel();
+
+        $montant = $data['montant'];
+        $phones = $data["phone"];
+        $montantAVerser = $montant/count($phones);
+        $fraisPourUnNum = $fraisModel->findFraisValueForMontant($montantAVerser,$data['operation']);
+
+        $fraisTotal = $fraisPourUnNum * count($phones);
+        $solde = $userModel->getClientWithSoldeById($userId);
+
+        if ($data['montant'] + $fraisTotal > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] + $fraisTotal));
+        }
+
+        //effectuer les tresader vers les comptes
+        die("montant debiter : " . $data['montant'] + $fraisTotal);
     }
 
     public function makeTransfert($data, $userId)
