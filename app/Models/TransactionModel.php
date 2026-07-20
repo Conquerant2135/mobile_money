@@ -7,7 +7,7 @@ use RuntimeException;
 use App\Models\NumPrefixeValableModel;
 use App\Models\FraisModel;
 use App\Models\UserModel;
-
+use App\Models\CommissionTransactionModel;
 
 class TransactionModel extends Model
 {
@@ -44,48 +44,50 @@ class TransactionModel extends Model
                 $this->makeDepotRetrait($data, $userId, false);
             }
         } else {
-            //$this->makeTransfert($data, $userId);
             $this->makeTransferMultiNumero($data, $userId);
         }
     }
 
     public function makeRetraitWithFrais($data, $userId)
     {
-        //car c est un retrait
-        $fraisModel  = new FraisModel();
-        $userModel = new UserModel();
-        $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
-        $solde = $userModel->getClientWithSoldeById($userId);
+        $fraisModel = new FraisModel();
+        $userModel  = new UserModel();
+        $frais      = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        $solde      = $userModel->getClientWithSoldeById($userId);
+
         if ($data['montant'] - $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] - $frais));
+            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Transaction : " . ($data['montant'] - $frais));
         }
+
         $this->save([
-            'montant' => $data['montant']  - $frais,
-            'operation_id' => $data['operation'],
+            'montant'       => $data['montant'] - $frais,
+            'operation_id'  => $data['operation'],
             'frais_montant' => 0,
-            'user_id' => $userId
+            'user_id'       => $userId
         ]);
     }
 
     public function makeDepotRetrait($data, $userId, $isDepot)
     {
-        $fraisModel  = new FraisModel();
-        $userModel = new UserModel();
-        $montant = $data['montant']; // Toujours positif
-        $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
-        $solde = $userModel->getClientWithSoldeById($userId);
+        $fraisModel = new FraisModel();
+        $userModel  = new UserModel();
+        $montant    = $data['montant'];
+        $frais      = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        $solde      = $userModel->getClientWithSoldeById($userId);
+
         if (!$isDepot && $data['montant'] + $frais > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] + $frais));
+            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Transaction : " . ($data['montant'] + $frais));
         }
+
         $this->save([
-            'montant' => $montant,
-            'operation_id' => $data['operation'],
+            'montant'       => $montant,
+            'operation_id'  => $data['operation'],
             'frais_montant' => $frais,
-            'user_id' => $userId
+            'user_id'       => $userId
         ]);
     }
 
-   public function makeTransferMultiNumero($data, $userId)
+    public function makeTransferMultiNumero($data, $userId)
     {
         $fraisModel = new FraisModel();
         $userModel  = new UserModel();
@@ -107,12 +109,12 @@ class TransactionModel extends Model
         $fraisTotal = $fraisPourUnNum * $nbPhones;
         $solde = $userModel->getClientWithSoldeById($userId);
 
-        // 3. Vérification du solde de l'expéditeur
+        // 3. Vérification du solde global
         if ($montantTotal + $fraisTotal > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Montant nécessaire : " . ($montantTotal + $fraisTotal) . " Ar");
+            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Requis : " . ($montantTotal + $fraisTotal) . " Ar");
         }
 
-        // 4. Exécution des transferts vers chaque destinataire
+        // 4. Exécution des transferts individuels
         foreach ($phones as $numDest) {
             $this->transfererMonantVersNum(
                 $data['operation'],
@@ -124,73 +126,40 @@ class TransactionModel extends Model
             );
         }
     }
-   public function transfererMonantVersNum($operationId, $montant, $frais, $idUser, $numDest, $desc)
+
+    public function transfererMonantVersNum($operationId, $montant, $frais, $idUser, $numDest, $desc)
     {
-        $numValidator = new NumPrefixeValableModel();
-        if (!$numValidator->isNumValid($numDest)) {
-            throw new \RuntimeException("Le numéro " . $numDest . " inscrit est invalide");
-        }
-
-        $userModel = new UserModel();
-        $dest = $userModel->findByNumero($numDest);
-
-        if (!$dest) {
-            throw new RuntimeException("Le client ayant le numéro : " . $numDest . " n'existe pas");
-        }
-
-        $this->save([
-            'user_id'         => $idUser,
-            'operation_id'    => $operationId,
-            'destinataire_id' => $dest['id'],
-            'montant'         => $montant,
-            'frais_montant'   => $frais,
-            'description'     => $desc
-        ]);
-    }
-
-
-    public function makeTransfert($data, $userId)
-    {
-        $fraisModel        = new FraisModel();
         $userModel         = new UserModel();
         $numValidator      = new NumPrefixeValableModel();
         $commissionManager = new CommissionTransactionModel();
 
-        $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        // Recherche du destinataire interne
+        $dest = $userModel->findByNumero($numDest);
 
-        $solde = $userModel->getClientWithSoldeById($userId);
-        $totalADebiter = $data['montant'] + $frais;
-
-        if ($totalADebiter > $solde["solde"]) {
-            throw new \RuntimeException(
-                "Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] .
-                    ", montant total requis (avec frais) : " . $totalADebiter
-            );
-        }
-
-        $dest = $userModel->findByNumero($data['phone']);
-
-        if (!$dest && !$numValidator->isKnownNum($data['phone'])) {
-            throw new \RuntimeException("Le numero destinataire : " . $data['phone'] . " n'est pas valide ou reconnu.");
+        // Si le destinataire n'est ni un client interne, ni un numéro valide/reconnu d'un autre opérateur
+        if (!$dest && !$numValidator->isKnownNum($numDest)) {
+            throw new RuntimeException("Le numéro destinataire : " . $numDest . " n'est pas valide ou reconnu.");
         }
 
         $transactionData = [
-            'user_id'         => $userId,
-            'operation_id'    => $data['operation'],
+            'user_id'         => $idUser,
+            'operation_id'    => $operationId,
             'destinataire_id' => $dest['id'] ?? null,
-            'num_dest'        => $data['phone'],
-            'montant'         => $data['montant'],
+            'num_dest'        => $numDest,
+            'montant'         => $montant,
             'frais_montant'   => $frais,
-            'description'     => $data['desc'] ?? null
+            'description'     => $desc
         ];
 
+        // Insertion et récupération de l'ID pour la commission
         $insertedId = $this->insert($transactionData);
 
         if (!$insertedId) {
-            throw new \RuntimeException("Erreur lors de l'enregistrement de la transaction.");
+            throw new RuntimeException("Erreur lors de l'enregistrement de la transaction pour le numéro " . $numDest);
         }
 
-        $commissionManager->appliquerCommission($insertedId, $data['phone'], $data['montant']);
+        // Application de la commission
+        $commissionManager->appliquerCommission($insertedId, $numDest, $montant);
 
         return $insertedId;
     }
@@ -199,14 +168,14 @@ class TransactionModel extends Model
     {
         $builder = $this
             ->select('
-            transactions.id as ref,
-            operation.nom as operation,
-            COALESCE(destinataire.numero, transactions.num_dest) as destinataire_numero,
-            transactions.montant,
-            transactions.frais_montant as frais,
-            transactions.description,
-            transactions.date_op
-        ')
+                transactions.id as ref,
+                operation.nom as operation,
+                COALESCE(destinataire.numero, transactions.num_dest) as destinataire_numero,
+                transactions.montant,
+                transactions.frais_montant as frais,
+                transactions.description,
+                transactions.date_op
+            ')
             ->join('operation', 'operation.id = transactions.operation_id')
             ->join('users as destinataire', 'destinataire.id = transactions.destinataire_id', 'left')
             ->where('transactions.user_id', $userId);
