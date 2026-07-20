@@ -32,7 +32,7 @@ class TransactionModel extends Model
         if ($data['operation'] == 1) {
             $this->makeDepotRetrait($data, $userId, true);
         } elseif ($data['operation'] == 2) {
-            $frais_inclus = isset($data['frais_inclus']);    
+            $frais_inclus = isset($data['frais_inclus']);
             if ($frais_inclus) {
                 $this->makeRetraitWithFrais($data, $userId);
             } else {
@@ -40,7 +40,7 @@ class TransactionModel extends Model
             }
         } else {
             //$this->makeTransfert($data, $userId);
-            $this->makeTransferMultiNumero($data,$userId);
+            $this->makeTransferMultiNumero($data, $userId);
         }
     }
 
@@ -80,25 +80,69 @@ class TransactionModel extends Model
         ]);
     }
 
-    public function makeTransferMultiNumero($data,$userId) {
-        $fraisModel  = new FraisModel();
-        $userModel = new UserModel();
+   public function makeTransferMultiNumero($data, $userId)
+    {
+        $fraisModel = new FraisModel();
+        $userModel  = new UserModel();
 
-        $montant = $data['montant'];
-        $phones = $data["phone"];
-        $montantAVerser = $montant/count($phones);
-        $fraisPourUnNum = $fraisModel->findFraisValueForMontant($montantAVerser,$data['operation']);
+        // 1. Nettoyage de la liste des numéros (suppression des champs vides)
+        $phones = array_filter((array)($data['phone'] ?? []));
 
-        $fraisTotal = $fraisPourUnNum * count($phones);
-        $solde = $userModel->getClientWithSoldeById($userId);
-
-        if ($data['montant'] + $fraisTotal > $solde["solde"]) {
-            throw new RuntimeException("Le solde est insuffisant pour cette action votre solde : " . $solde["solde"] . " La transaction " . ($data['montant'] + $fraisTotal));
+        if (empty($phones)) {
+            throw new RuntimeException("Veuillez renseigner au moins un numéro de téléphone.");
         }
 
-        //effectuer les tresader vers les comptes
-        die("montant debiter : " . $data['montant'] + $fraisTotal);
+        $nbPhones = count($phones);
+        $montantTotal = $data['montant'];
+
+        // 2. Calcul du montant divisé par destinataire et des frais associés
+        $montantAVerser = $montantTotal / $nbPhones;
+        $fraisPourUnNum = $fraisModel->findFraisValueForMontant($montantAVerser, $data['operation']);
+
+        $fraisTotal = $fraisPourUnNum * $nbPhones;
+        $solde = $userModel->getClientWithSoldeById($userId);
+
+        // 3. Vérification du solde de l'expéditeur
+        if ($montantTotal + $fraisTotal > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Montant nécessaire : " . ($montantTotal + $fraisTotal) . " Ar");
+        }
+
+        // 4. Exécution des transferts vers chaque destinataire
+        foreach ($phones as $numDest) {
+            $this->transfererMonantVersNum(
+                $data['operation'],
+                $montantAVerser,
+                $fraisPourUnNum,
+                $userId,
+                $numDest,
+                $data['desc'] ?? null
+            );
+        }
     }
+   public function transfererMonantVersNum($operationId, $montant, $frais, $idUser, $numDest, $desc)
+    {
+        $numValidator = new NumPrefixeValableModel();
+        if (!$numValidator->isNumValid($numDest)) {
+            throw new \RuntimeException("Le numéro " . $numDest . " inscrit est invalide");
+        }
+
+        $userModel = new UserModel();
+        $dest = $userModel->findByNumero($numDest);
+
+        if (!$dest) {
+            throw new RuntimeException("Le client ayant le numéro : " . $numDest . " n'existe pas");
+        }
+
+        $this->save([
+            'user_id'         => $idUser,
+            'operation_id'    => $operationId,
+            'destinataire_id' => $dest['id'],
+            'montant'         => $montant,
+            'frais_montant'   => $frais,
+            'description'     => $desc
+        ]);
+    }
+
 
     public function makeTransfert($data, $userId)
     {

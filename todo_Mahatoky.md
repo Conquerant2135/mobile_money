@@ -89,11 +89,11 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
     - [ok] recuperer le frais pour ce montant
     - [ok] calculer le frais total (mantant_unique*nb_num)
     - [ok] verifier si le solde du compte est soffisante (solde => frais_total + montant)
-    - effectuer le transfer vers un comptes 
-      - fonciton transfererArgent(montant,frais,id_user,numDest)
-        - recuperer numDest
-        - inseret transaction
-        - sauvgarder transaction
+    - [ok] effectuer le transfer vers un comptes 
+      - [ok] fonciton transfererArgent(montant,frais,id_user,numDest)
+        - [ok] recuperer numDest
+        - [ok] inseret transaction
+        - [ok] sauvgarder transaction
 #### todo
 + ajouter javascript insertion multiple dans transfer
 + [ou est le fichier controleur] recuperer les insertion multiple dans le controleur
