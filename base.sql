@@ -1,17 +1,24 @@
 -- 1. Désactiver les contraintes de clés étrangères pour exécuter les DROP sans conflit
 PRAGMA foreign_keys = OFF;
 
--- 2. Suppression des tables existantes (pour réinitialiser la base)
+-- 2. Suppression des vues existantes
+DROP VIEW IF EXISTS v_solde_compte_client;
+DROP VIEW IF EXISTS v_montant_recu_client;
+DROP VIEW IF EXISTS v_detail_montant_compte_client;
+DROP VIEW IF EXISTS v_transaction_and_type_operation;
+DROP VIEW IF EXISTS v_user_client;
+
+-- 3. Suppression des tables existantes
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS frais;
 DROP TABLE IF EXISTS operation;
 DROP TABLE IF EXISTS num_prefixe_valable;
 DROP TABLE IF EXISTS users;
 
--- 3. Réactivation des contraintes de clés étrangères
+-- 4. Réactivation des contraintes de clés étrangères
 PRAGMA foreign_keys = ON;
 
--- 4. Création des tables
+-- 5. Création des tables
 CREATE TABLE users (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     nom            TEXT,                 
@@ -54,12 +61,84 @@ CREATE TABLE transactions (
     date_op         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. Création des index
+-- 6. Création des vues
+
+CREATE VIEW v_user_client AS
+SELECT
+    *
+FROM
+    users
+WHERE
+    role = 'client';
+
+CREATE VIEW v_transaction_and_type_operation AS
+SELECT
+    t.*,
+    o.code code_operation
+FROM
+    transactions t
+    JOIN operation o ON t.operation_id = o.id;
+
+-- RECUPERER LE SOLDE D UN COMPTE CLIENT
+CREATE VIEW v_detail_montant_compte_client AS
+SELECT
+    user_id,
+    SUM(
+        CASE
+            WHEN code_operation = 'DEP' THEN montant
+            ELSE 0
+        END
+    ) AS montant_total_depo,
+    SUM(
+        CASE
+            WHEN code_operation = 'RET' THEN montant + frais_montant
+            ELSE 0
+        END
+    ) AS montant_total_retrait_plus_frais,
+    SUM(
+        CASE
+            WHEN code_operation = 'TRA' THEN montant + frais_montant
+            ELSE 0
+        END
+    ) AS montant_transmise_plus_frais
+FROM
+    v_transaction_and_type_operation
+GROUP BY
+    user_id;
+
+-- RECUPERER LE MONTANT RECU POUR UN CLIENT PRECIS
+CREATE VIEW v_montant_recu_client AS
+SELECT
+    destinataire_id user_id,
+    SUM(montant) total_montant_recu
+FROM
+    transactions
+WHERE
+    destinataire_id IS NOT NULL
+GROUP BY
+    destinataire_id;
+
+-- RECUPERER LE SOLDE D UN COMPTE (Inclut la correction avec v_user_client pour ne manquer aucun client)
+CREATE VIEW v_solde_compte_client AS 
+SELECT
+    u.id AS user_id,
+    (
+        COALESCE(vdmcc.montant_total_depo, 0) + 
+        COALESCE(vmrc.total_montant_recu, 0) - 
+        COALESCE(vdmcc.montant_total_retrait_plus_frais, 0) - 
+        COALESCE(vdmcc.montant_transmise_plus_frais, 0)
+    ) AS solde
+FROM
+    v_user_client u
+    LEFT JOIN v_detail_montant_compte_client vdmcc ON u.id = vdmcc.user_id
+    LEFT JOIN v_montant_recu_client vmrc ON u.id = vmrc.user_id;
+
+-- 7. Création des index
 CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_destinataire ON transactions(destinataire_id);
 CREATE INDEX idx_frais_operation ON frais(operation_id);
 
--- 6. Insertion des données de test
+-- 8. Insertion des données de test
 
 -- Operations
 INSERT INTO operation (nom, code) VALUES 
