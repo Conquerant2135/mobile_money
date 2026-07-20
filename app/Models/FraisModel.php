@@ -34,4 +34,32 @@ class FraisModel extends Model
 
         return $result['frais_val'];
     }
+
+    /**
+     * Gain total généré par les Transferts (TRA) via la vue
+     */
+    public function getGainTransfert(): float
+    {
+        $builder = $this->db->table('v_transaction_and_type_operation');
+        $result  = $builder->selectSum('frais_montant', 'total_gain')
+                           ->where('code_operation', 'TRA')
+                           ->get()
+                           ->getRowArray();
+
+        return $result['total_gain'] ? (float) $result['total_gain'] : 0.0;
+    }
+
+    /**
+     * Gain total généré par les Retraits (RET) via la vue
+     */
+    public function getGainRetrait(): float
+    {
+        $builder = $this->db->table('v_transaction_and_type_operation');
+        $result  = $builder->selectSum('frais_montant', 'total_gain')
+                           ->where('code_operation', 'RET')
+                           ->get()
+                           ->getRowArray();
+
+        return $result['total_gain'] ? (float) $result['total_gain'] : 0.0;
+    }
 }

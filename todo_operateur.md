@@ -10,7 +10,7 @@
 + Transaction_detail
 + Frais
 
-#### configuration prefix
+#### [ok] configuration prefix
 ##### Vue
 + Page crud prefix
 ##### controleur
@@ -34,28 +34,28 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
   - updateFraisOperation
   - addFraisOperation(id_operation)
 
-#### Situation gain via les différents frais ( retrait et transfert)
+#### [ok] Situation gain via les différents frais ( retrait et transfert)
 ##### vue
-+ gain_par_frais_operation
-  - operation name / total de gain
++ [ok] gain_par_frais_operation
+  - [ok] operation name / total de gain
 #### controller
 + showGainPerOperation
-  - model->getGaisOperation
-  - afficher gain_par_frais_operaiton
+  - [ok] model->getGaisOperation
+  - [ok] afficher gain_par_frais_operaiton
 #### sql
-+ creer vue :
++ [ok] creer vue :
   - v_gain_per_operation (operation join (sum fais_transation group by id_operation))
 #### model
 + OperationModel
 + findAllGainOperation (utiliser v_gain_per_operation)
 
-### Situation des comptes clients [en_cours]
+### Situation des comptes clients [ok]
 ##### vue
 + [ok] situation_compte_client
   - [ok] liste des clients + montant du compte 
 #### [ok] controller
-+ UserControlleur
-+ showSituaionCompte
++ [ok] UserControlleur
++ [ok] showSituaionCompte
   - model->getSituationCompte
   - afficher situation_compte_client
 #### [ok] sql

@@ -19,3 +19,24 @@ $routes->group('client' , ['filter' => 'auth'] , function ($routes) {
 
 //action operateur 
 $routes->get('/operateur/situation_compte_client', 'ClientController::showSituationCompte');
+
+//show gain
+$routes->get('/operateur/gain_par_frais_operation','FraisController::showGainPerOperation');
+
+//crud prefix
+$routes->group('operateur/prefixes', function($routes) {
+    $routes->get('/', 'NumPrefixeValableController::list');
+    $routes->post('create', 'NumPrefixeValableController::create');
+    $routes->get('edit/(:num)', 'NumPrefixeValableController::modification/$1');
+    $routes->post('update/(:num)', 'NumPrefixeValableController::update/$1');
+    $routes->get('delete/(:num)', 'NumPrefixeValableController::delete/$1');
+});
+
+//crud route
+$routes->group('operateur/operations', function($routes) {
+    $routes->get('/', 'OperationController::list');
+    $routes->post('create', 'OperationController::create');
+    $routes->get('edit/(:num)', 'OperationController::modification/$1');
+    $routes->post('update/(:num)', 'OperationController::update/$1');
+    $routes->get('delete/(:num)', 'OperationController::delete/$1');
+});
