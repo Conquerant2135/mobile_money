@@ -1,10 +1,18 @@
 document.getElementById("operation").addEventListener("change", function (event) {
-    console.log('valeur : ' + event.target.value);
-
+    const selectedVal = event.target.value;
     const selectedText = event.target.options[event.target.selectedIndex].text;
+    
     document.getElementById("submit-stuff").innerText = selectedText;
 
-    if (event.target.value == 3) {
+    // Gestion du champ Frais Inclus (Retrait = 2)
+    if (selectedVal == 2) {
+        document.getElementById("frais-inclus-field").style.display = "block";
+    } else {
+        document.getElementById("frais-inclus-field").style.display = "none";
+    }
+
+    // Gestion des champs Téléphone et Description (Transfert = 3)
+    if (selectedVal == 3) {
         showTransactionForm();
     } else {
         makeTransactionFormDisapear();

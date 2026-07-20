@@ -38,6 +38,13 @@ $activeMenu = 'client-operation';
                         </div>
                     </div>
 
+                    <div class="mb-3" id="frais-inclus-field" style="display:none;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="frais_inclus" id="frais_inclus" value="1">
+                            <label class="form-check-label" for="frais_inclus">Frais inclus</label>
+                        </div>
+                    </div>
+
                     <div class="mb-3" id="phone-field" style="display:none;">
                         <label for="phone" class="form-label">Téléphone du destinataire</label>
                         <input type="text" class="form-control" name="phone" id="phone" placeholder="034xxxxxxx">
