@@ -1,0 +1,1 @@
+sqlite3 writable/database.db < base.sql
