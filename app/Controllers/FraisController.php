@@ -5,24 +5,29 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\FraisModel;
 use App\Models\OperationModel;
+use App\Models\CommissionTransactionModel;
 
 class FraisController extends BaseController
 {
     protected $fraisModel;
     protected $operationModel;
+    protected $commissionModel;
 
     public function __construct()
     {
         $this->fraisModel     = new FraisModel();
         $this->operationModel = new OperationModel();
+        $this->commissionModel = new CommissionTransactionModel();
     }
 
     // Affichage des gains par opération
     public function showGainPerOperation()
     {
+
         return view("operateur/gain_par_frais_operation", [
             'gainRetait'    => $this->fraisModel->getGainRetrait(),
-            'gainTransfert' => $this->fraisModel->getGainTransfert()
+            'gainTransfert' => $this->fraisModel->getGainTransfert(),
+            'totaux' => $this->commissionModel->getMontantsARendreParOperateur()
         ]);
     }
 

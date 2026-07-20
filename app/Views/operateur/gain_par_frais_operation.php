@@ -2,11 +2,20 @@
 $pageTitle  = "Gains par opération";
 $activeMenu = 'op-gains';
 $totalGain  = $gainRetait + $gainTransfert;
+
+// Calcul du total des commissions à reverser
+$totalCommissions = 0;
+if (!empty($totaux)) {
+    foreach ($totaux as $row) {
+        $totalCommissions += $row['total_commission'];
+    }
+}
 ?>
 <?= $this->extend('layout/main') ?>
 
 <?= $this->section('content') ?>
 
+<!-- Cards KPI -->
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-4">
         <div class="card-kpi kpi-retrait">
@@ -28,7 +37,8 @@ $totalGain  = $gainRetait + $gainTransfert;
     </div>
 </div>
 
-<div class="card">
+<!-- Table 1 : Gains par frais d'opération -->
+<div class="card mb-4">
     <div class="card-header bg-white border-bottom">
         <h2 class="h6 mb-0">Détail des gains générés par les frais d'opération</h2>
     </div>
@@ -54,6 +64,51 @@ $totalGain  = $gainRetait + $gainTransfert;
                 <tr class="fw-bold">
                     <td>Total des gains</td>
                     <td class="text-end"><?= number_format($totalGain, 2, ',', ' ') ?> Ar</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Table 2 : Montants à reverser aux opérateurs partenaires -->
+<div class="card">
+    <div class="card-header bg-white border-bottom">
+        <h2 class="h6 mb-0">Montants des commissions à reverser par opérateur partenaire</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-app mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Opérateur</th>
+                    <th class="text-end">Total commission à reverser</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($totaux)): ?>
+                    <?php foreach ($totaux as $item): ?>
+                        <tr>
+                            <td>
+                                <span class="fw-medium"><?= esc($item['nom']) ?></span>
+                            </td>
+                            <td class="text-end fw-semibold text-danger">
+                                <?= number_format($item['total_commission'], 2, ',', ' ') ?> Ar
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="2" class="text-center text-muted py-3">
+                            Aucune commission à reverser pour le moment.
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td>Total à payer aux partenaires</td>
+                    <td class="text-end text-danger">
+                        <?= number_format($totalCommissions, 2, ',', ' ') ?> Ar
+                    </td>
                 </tr>
             </tfoot>
         </table>

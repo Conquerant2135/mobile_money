@@ -12,8 +12,7 @@ class CommissionTransactionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    
-    // N'inclut pas 'id' dans allowedFields (géré automatiquement par AUTOINCREMENT)
+
     protected $allowedFields    = ['transaction_id', 'operateur_id', 'montant_comm'];
 
     protected bool $allowEmptyInserts = false;
@@ -57,5 +56,42 @@ class CommissionTransactionModel extends Model
             'operateur_id'   => $operateurId,
             'montant_comm'   => $montantComm
         ]);
+    }
+
+    public function getMontantsARendreParOperateur()
+    {
+        return $this->db->table('solde_par_operateur')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getDetailMontantsARendre($filters = [])
+    {
+        $builder = $this->db->table('commission_transaction ct')
+            ->select('
+                o.id as operateur_id,
+                o.nom as operateur_nom,
+                SUM(ct.montant_comm) as total_commission,
+                COUNT(ct.id) as nombre_transactions
+            ')
+            ->join('operateur o', 'o.id = ct.operateur_id')
+            ->join('transactions t', 't.id = ct.transaction_id')
+            ->where('o.a_nous', 0);
+
+        if (!empty($filters['date_debut'])) {
+            $builder->where('t.date_op >=', $filters['date_debut'] . ' 00:00:00');
+        }
+
+        if (!empty($filters['date_fin'])) {
+            $builder->where('t.date_op <=', $filters['date_fin'] . ' 23:59:59');
+        }
+
+        if (!empty($filters['operateur_id'])) {
+            $builder->where('o.id', $filters['operateur_id']);
+        }
+
+        return $builder->groupBy('o.id, o.nom')
+            ->get()
+            ->getResultArray();
     }
 }

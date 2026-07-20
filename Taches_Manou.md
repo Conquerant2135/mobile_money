@@ -61,8 +61,15 @@ Objectif : ajouter les prefixe des autres operateurs et taxes sur les frais suiv
 
 ### Integration de la commission
 
-+ [ ] verification si numero vient de l'exterieur ou de nous
-+ [ ] si exterieur -> appliquer commision
-  + [ ] faire fonction pour appliquer les commissions
-    + [ ] chercher l'operateur en fonction du prefixe
-    + [ ] chercher la valeur de commission
++ [x] verification si numero vient de l'exterieur ou de nous
++ [x] si exterieur -> appliquer commision
+  + [x] faire fonction pour appliquer les commissions
+    + [x] chercher l'operateur en fonction du prefixe
+    + [x] chercher la valeur de commission
++ [x] mise a jour des methodes pour que le transfert utilise le truc la
+
+### Affichage des informations par operateurs
+
++ [x] methode pour avoir le montant a rendre par operateur
+  + avec filtre svp si possible
++ [x] modification de la vue pour afficher la table des a rendre
