@@ -33,6 +33,7 @@ CREATE TABLE users (
 CREATE TABLE num_prefixe_valable (
     id     INTEGER PRIMARY KEY AUTOINCREMENT,
     prefix TEXT NOT NULL UNIQUE,
+    id_operateur 
     actif  INTEGER NOT NULL DEFAULT 1 CHECK (actif IN (0,1))
 );
 

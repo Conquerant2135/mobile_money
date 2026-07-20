@@ -67,4 +67,23 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
 + [ok] UserModel
   + [ok] getSoldeCient (select * from v_solde client)
 
-### ACTIVER CSRF
+#### design 
+- [ok] ajout css (via IA) de toute les page
+
+## Version 2
+### Client
+- Option inclure frais de retrait lors de l’envoi
+  - [en_cours] dans TransactionMdodel 
+   - cree fonction makeRetraiWithFrais()
+     - [ok] recuperer le frais
+     - [ok] diminuer le montant a sauvgrarder du frais
+     - [ok] sauvgarder le transfert
+   - dans TransactionController
+     - [ok] verifier si l lo option ajouter frais est coucher 
+       - [ok] si oui apeller makeRretaisWihFrais()
+   - [en_cours] dans vue ajouter checkbox ajouter frais
+- Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
+#### todo
++ ajouter javascript insertion multiple dans transfer
++ [ou est le fichier controleur] recuperer les insertion multiple dans le controleur
++ pour chaque num faire insertion 
