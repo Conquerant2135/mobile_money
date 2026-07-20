@@ -20,6 +20,18 @@ class FraisModel extends Model
 
     protected $useTimestamps   = false;
 
+    /**
+     * Récupère la liste de tous les barèmes de frais avec le nom et code de l'opération
+     */
+    public function getFraisWithOperation(): array
+    {
+        return $this->select('frais.*, operation.nom AS operation_nom, operation.code AS operation_code')
+                    ->join('operation', 'operation.id = frais.operation_id')
+                    ->orderBy('operation.id', 'ASC')
+                    ->orderBy('frais.min', 'ASC')
+                    ->findAll();
+    }
+
     public function findFraisValueForMontant($montant, $operationId)
     {
         $result = $this

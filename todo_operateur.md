@@ -20,7 +20,7 @@
   - GET  : list
   - GET  : modification
 
-#### creation de type d operation
+#### [ok] creation de type d operation
 Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes de frais 
 ##### vue
 + list_operation (liste des operations)

@@ -40,3 +40,13 @@ $routes->group('operateur/operations', function($routes) {
     $routes->post('update/(:num)', 'OperationController::update/$1');
     $routes->get('delete/(:num)', 'OperationController::delete/$1');
 });
+
+//crud route
+$routes->group('operateur/frais', function($routes) {
+    $routes->get('/', 'FraisController::list');
+    $routes->get('gains', 'FraisController::showGainPerOperation');
+    $routes->post('create', 'FraisController::create');
+    $routes->get('edit/(:num)', 'FraisController::modification/$1');
+    $routes->post('update/(:num)', 'FraisController::update/$1');
+    $routes->get('delete/(:num)', 'FraisController::delete/$1');
+});
