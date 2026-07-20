@@ -53,6 +53,16 @@ Objectif : ajouter les prefixe des autres operateurs et taxes sur les frais suiv
   + pourcentage
   + operateur_id
 
-+ [ ] creer table solde operateur (pour contenir les gains des operateurs sur les transactions de transfert)
++ [x] creer table solde operateur (pour contenir les gains des operateurs sur les transactions de transfert)
   + transaction_id (reference de l'operation)
   + montant_comm
+
++ [x] creer une vue pour sortir le solde par operateur
+
+### Integration de la commission
+
++ [ ] verification si numero vient de l'exterieur ou de nous
++ [ ] si exterieur -> appliquer commision
+  + [ ] faire fonction pour appliquer les commissions
+    + [ ] chercher l'operateur en fonction du prefixe
+    + [ ] chercher la valeur de commission
