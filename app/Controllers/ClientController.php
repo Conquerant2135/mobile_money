@@ -10,10 +10,18 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class ClientController extends BaseController
 {
+    protected $transactionModel;
+    protected $operationModel;
+    protected $userModel;
+
+    public function __construct()
+    {
+        $this->transactionModel = new TransactionModel();
+        $this->operationModel = new OperationModel();
+        $this->userModel = new UserModel();
+    }
     public function index()
     {
-        $transactionModel = new TransactionModel();
-        $operationModel   = new OperationModel();
 
         $filters = [
             'operation_id' => $this->request->getGet('operation_id'),
@@ -27,7 +35,7 @@ class ClientController extends BaseController
             $perPage = 5;
         }
 
-        $historiques = $transactionModel->historiqueTransaction(
+        $historiques = $this->transactionModel->historiqueTransaction(
             session()->get("user_id"),
             $filters,
             $perPage
@@ -35,8 +43,8 @@ class ClientController extends BaseController
 
         return view("client/accueil", [
             'historiques'    => $historiques,
-            'pager'          => $transactionModel->pager,
-            'operations'     => $operationModel->findAll(),
+            'pager'          => $this->transactionModel->pager,
+            'operations'     => $this->operationModel->findAll(),
             'filters'        => $filters,
             'perPage'        => $perPage,
             'perPageOptions' => $perPageOptions,
@@ -45,24 +53,21 @@ class ClientController extends BaseController
 
     public function showSituationCompte()
     {
-        $userModel = new UserModel();
 
-        return view("operateur/situation_compte_client", ['clientSoldes' => $userModel->getClientsWithSolde()]);
+        return view("operateur/situation_compte_client", ['clientSoldes' => $this->userModel->getClientsWithSolde()]);
     }
 
     public function operationPage()
     {
-        $operationModel = new OperationModel();
-        return view("client/operation", ['operations' => $operationModel->findAll()]);
+        return view("client/operation", ['operations' => $this->operationModel->findAll()]);
     }
 
     public function operation()
     {
         $data = $this->request->getPost();
-        $transactionModel = new TransactionModel();
 
         try {
-            $transactionModel->makeTransaction($data, session()->get("user_id"));
+            $this->transactionModel->makeTransaction($data, session()->get("user_id"));
             return redirect()->to("/client")
                 ->with('success', 'Opération effectuée avec succès');
         } catch (\RuntimeException $e) {
