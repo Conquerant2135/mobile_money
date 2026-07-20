@@ -1,0 +1,5 @@
+vendor/
+session/
+composer.lock
+logs/
+.env
