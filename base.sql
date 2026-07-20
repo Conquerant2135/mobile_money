@@ -196,3 +196,39 @@ INSERT INTO transactions (user_id, operation_id, destinataire_id, montant, frais
     1000,
     'Retrait d''espèces'
 );
+
+
+CREATE TABLE operateur (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom    TEXT NOT NULL UNIQUE,
+    a_nous INTEGER NOT NULL DEFAULT 0 CHECK (a_nous IN (0,1))
+);
+ALTER TABLE num_prefixe_valable ADD COLUMN operateur_id INTEGER REFERENCES operateur(id);
+
+CREATE TABLE commission_autres (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    operateur_id INTEGER NOT NULL REFERENCES operateur(id),
+    date_debut   DATETIME NOT NULL,
+    date_fin     DATETIME,
+    pourcentage  NUMERIC NOT NULL
+);
+
+CREATE INDEX idx_commission_operateur ON commission_autres(operateur_id);
+
+CREATE TABLE commission_transaction (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id),
+    operateur_id   INTEGER NOT NULL REFERENCES operateur(id),
+    montant_comm   NUMERIC NOT NULL
+);
+
+ALTER TABLE transactions ADD COLUMN num_dest TEXT;
+
+CREATE VIEW solde_par_operateur AS
+SELECT
+    o.id AS operateur_id,
+    o.nom,
+    SUM(ct.montant_comm) AS total_commission
+FROM commission_transaction ct
+JOIN operateur o ON o.id = ct.operateur_id
+GROUP BY o.id;

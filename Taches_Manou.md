@@ -18,7 +18,7 @@
 
 + [x] historique des operations : tableau affichage (filtre par date , operation et montant)
 + [x] KPI du compte : solde actuel
-+ [ ] Verification si solde suffisant pour transfert ou retrait
++ [x] Verification si solde suffisant pour transfert ou retrait
 
 ### Backend
 
@@ -27,6 +27,32 @@
   + chercher l'utilisateur du numero cible
   + calcul du montant du frais si retrait ou transfert (si transfert sur le compte de l'envoyeur)
 
-+ [ ] fonction pour avoir le tableau historique (WIP)
-+ [ ] fonction pour sortir le solde du compte
++ [x] fonction pour avoir le tableau historique
++ [x] fonction pour sortir le solde du compte
   + ecrire une requette SQL pour avoir la somme des retrait et des entree
+
+## V2
+
+Objectif : ajouter les prefixe des autres operateurs et taxes sur les frais suivant les operateurs
+
+### Prefixe des autres operateurs
+
++ [x] ajouter table operateur
+  + id int
+  + nom varchar
+  + a_nous boolean
++ [x] ajouter colonne id_operateur sur num_prefixe_valable
+
+### Commission vers les autres operateurs
+
++ [x] ajouter colonne num_dest sur la table transaction pour quand les transfert se font vers l'exterieur
++ [x] creer table commission_autres lors de transfert vers autre operateur
+  + id
+  + dateheuredebut
+  + dateheurefin nullable
+  + pourcentage
+  + operateur_id
+
++ [ ] creer table solde operateur (pour contenir les gains des operateurs sur les transactions de transfert)
+  + transaction_id (reference de l'operation)
+  + montant_comm
