@@ -43,13 +43,15 @@ class ClientController extends BaseController
         ]);
     }
 
-    public function showSituationCompte() {
+    public function showSituationCompte()
+    {
         $userModel = new UserModel();
 
-        return view("operateur/situation_compte_client" , ['clientSoldes' => $userModel->getClientsWithSolde()]);
+        return view("operateur/situation_compte_client", ['clientSoldes' => $userModel->getClientsWithSolde()]);
     }
 
-    public function operationPage(){
+    public function operationPage()
+    {
         $operationModel = new OperationModel();
         return view("client/operation", ['operations' => $operationModel->findAll()]);
     }
@@ -57,9 +59,16 @@ class ClientController extends BaseController
     public function operation()
     {
         $data = $this->request->getPost();
-        $transctionModel = new TransactionModel();
-        
-        $transctionModel->makeTransaction($data, session()->get("user_id"));
-        return redirect()->to("/client");
+        $transactionModel = new TransactionModel();
+
+        try {
+            $transactionModel->makeTransaction($data, session()->get("user_id"));
+            return redirect()->to("/client")
+                ->with('success', 'Opération effectuée avec succès');
+        } catch (\RuntimeException $e) {
+            return redirect()->to('/client/operation')
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 }

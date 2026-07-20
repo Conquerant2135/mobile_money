@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use RuntimeException;
 
 class TransactionModel extends Model
 {
@@ -29,19 +30,23 @@ class TransactionModel extends Model
     public function makeTransaction($data, $userId)
     {
         if ($data['operation'] == 1) {
-            $this->makeDepotTransfert($data, $userId, true);
+            $this->makeDepotRetrait($data, $userId, true);
         } elseif ($data['operation'] == 2) {
-            $this->makeDepotTransfert($data, $userId, false);
+            $this->makeDepotRetrait($data, $userId, false);
         } else {
             $this->makeTransfert($data, $userId);
         }
     }
 
-    public function makeDepotTransfert($data, $userId, $isDepot)
+    public function makeDepotRetrait($data, $userId, $isDepot)
     {
         $fraisModel  = new FraisModel();
+        $userModel = new UserModel();
         $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
         $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        if ($data['montant'] + $frais < $userModel->getClientWithSoldeById($userId)) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action");
+        }
         $this->save([
             'montant' => $montant,
             'operation_id' => $data['operation'],
@@ -56,8 +61,11 @@ class TransactionModel extends Model
         $userModel = new UserModel();
         $numValidator = new NumPrefixeValableModel();
         $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
-        if (!$numValidator->isNumValid($data['phone'])){
+        if (!$numValidator->isNumValid($data['phone'])) {
             throw new \RuntimeException(" Le numero inscrit est invalide ");
+        }
+        if ($data['montant'] + $frais < $userModel->getClientWithSoldeById($userId)) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action");
         }
         $dest = $userModel->findByNumero($data['phone']);
         $this->save([
@@ -70,7 +78,7 @@ class TransactionModel extends Model
         ]);
     }
 
-    public function historiqueTransaction($userId, $filters = [] , $perPage = 5)
+    public function historiqueTransaction($userId, $filters = [], $perPage = 5)
     {
         $builder = $this
             ->select('
