@@ -16,3 +16,6 @@ $routes->group('client' , ['filter' => 'auth'] , function ($routes) {
     $routes->get('operation' , 'ClientController::operationPage');
     $routes->post('operation' , 'ClientController::operation');
 });
+
+//action operateur 
+$routes->get('/operateur/situation_compte_client', 'ClientController::showSituationCompte');

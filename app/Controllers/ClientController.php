@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\OperationModel;
 use App\Models\TransactionModel;
+use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class ClientController extends BaseController
@@ -42,8 +43,13 @@ class ClientController extends BaseController
         ]);
     }
 
-    public function operationPage()
-    {
+    public function showSituationCompte() {
+        $userModel = new UserModel();
+
+        return view("operateur/situation_compte_client" , ['clientSoldes' => $userModel->getClientsWithSolde()]);
+    }
+
+    public function operationPage(){
         $operationModel = new OperationModel();
         return view("client/operation", ['operations' => $operationModel->findAll()]);
     }
