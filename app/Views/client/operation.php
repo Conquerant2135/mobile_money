@@ -46,8 +46,13 @@ $activeMenu = 'client-operation';
                     </div>
 
                     <div class="mb-3" id="phone-field" style="display:none;">
-                        <label for="phone" class="form-label">Téléphone du destinataire</label>
-                        <input type="text" class="form-control" name="phone" id="phone" placeholder="034xxxxxxx">
+                        <label class="form-label">Téléphone(s) du/des destinataire(s)</label>
+                        <div id="phone-list">
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="phone[]" placeholder="034xxxxxxx">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-1" id="add-phone-btn">+ Ajouter un numéro</button>
                     </div>
 
                     <div class="mb-3" id="desc-field" style="display:none;">
