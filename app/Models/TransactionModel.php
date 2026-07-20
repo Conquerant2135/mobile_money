@@ -66,9 +66,9 @@ class TransactionModel extends Model
         ]);
     }
 
-    public function historiqueTransaction($userId)
+    public function historiqueTransaction($userId, $filters = [] , $perPage = 5)
     {
-        return $this
+        $builder = $this
             ->select('
             transactions.id as ref,
             operation.nom as operation,
@@ -80,8 +80,20 @@ class TransactionModel extends Model
         ')
             ->join('operation', 'operation.id = transactions.operation_id')
             ->join('users as destinataire', 'destinataire.id = transactions.destinataire_id', 'left')
-            ->where('transactions.user_id', $userId)
-            ->orderBy('transactions.date_op', 'DESC')
-            ->paginate(3);
+            ->where('transactions.user_id', $userId);
+
+        if (!empty($filters['operation_id'])) {
+            $builder->where('transactions.operation_id', $filters['operation_id']);
+        }
+
+        if (!empty($filters['date_debut'])) {
+            $builder->where('transactions.date_op >=', $filters['date_debut'] . ' 00:00:00');
+        }
+
+        if (!empty($filters['date_fin'])) {
+            $builder->where('transactions.date_op <=', $filters['date_fin'] . ' 23:59:59');
+        }
+
+        return $builder->orderBy('transactions.date_op', 'DESC')->paginate($perPage);
     }
 }

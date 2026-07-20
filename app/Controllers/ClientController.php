@@ -12,12 +12,33 @@ class ClientController extends BaseController
     public function index()
     {
         $transactionModel = new TransactionModel();
+        $operationModel   = new OperationModel();
 
-        $historiques = $transactionModel->historiqueTransaction(session()->get("user_id"));
+        $filters = [
+            'operation_id' => $this->request->getGet('operation_id'),
+            'date_debut'   => $this->request->getGet('date_debut'),
+            'date_fin'     => $this->request->getGet('date_fin'),
+        ];
+
+        $perPageOptions = [5, 10, 25, 50];
+        $perPage = (int) $this->request->getGet('per_page');
+        if (!in_array($perPage, $perPageOptions, true)) {
+            $perPage = 5;
+        }
+
+        $historiques = $transactionModel->historiqueTransaction(
+            session()->get("user_id"),
+            $filters,
+            $perPage
+        );
 
         return view("client/accueil", [
-            'historiques' => $historiques,
-            'pager'       => $transactionModel->pager,
+            'historiques'    => $historiques,
+            'pager'          => $transactionModel->pager,
+            'operations'     => $operationModel->findAll(),
+            'filters'        => $filters,
+            'perPage'        => $perPage,
+            'perPageOptions' => $perPageOptions,
         ]);
     }
 
