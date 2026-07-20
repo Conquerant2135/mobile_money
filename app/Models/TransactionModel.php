@@ -54,7 +54,11 @@ class TransactionModel extends Model
     {
         $fraisModel = new FraisModel();
         $userModel = new UserModel();
+        $numValidator = new NumPrefixeValableModel();
         $frais = $fraisModel->findFraisValueForMontant($data['montant'], $data['operation']);
+        if (!$numValidator->isNumValid($data['phone'])){
+            throw new \RuntimeException(" Le numero inscrit est invalide ");
+        }
         $dest = $userModel->findByNumero($data['phone']);
         $this->save([
             'user_id' => $userId,

@@ -52,6 +52,7 @@ class ClientController extends BaseController
     {
         $data = $this->request->getPost();
         $transctionModel = new TransactionModel();
+        
         $transctionModel->makeTransaction($data, session()->get("user_id"));
         return redirect()->to("/client");
     }
