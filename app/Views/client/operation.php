@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,35 +8,51 @@
     <meta name="keywords" content="">
     <meta name="author" content="">
     <link rel="stylesheet" href="<?= base_url("/styles.css") ?>">
-    <title></title>
+    <title>Faire une operation</title>
 </head>
+
 <body>
     <header>
         <nav>
-            
+
         </nav>
     </header>
-    
+
     <main>
-        <form action="" method="POST" class="contact-form">
+        <form action="<?= base_url("/client/operation") ?>" method="POST" class="contact-form">
             <div class="form-group">
                 <label for="montant">Montant:</label>
                 <input type="number" id="montant" name="montant">
             </div>
-            
+
             <div class="form-group">
                 <label for="operation">Operation :</label>
-                <select name="operation" id=""></select>
+                <select name="operation" id="operation">
+                    <?php foreach ($operations as $op) { ?>
+                        <option value="<?= esc($op["id"]) ?>"><?= esc($op["nom"]) ?></option>
+                    <?php } ?>
+                </select>
             </div>
-            
-            <button type="submit" class="submit-btn">Send Message</button>
+
+            <div class="form-group" id="desc-field" style="display:none;">
+                <label for="desc">Description :</label>
+                <textarea name="desc" id="desc"></textarea>
+            </div>
+            <div class="form-group" id="phone-field" style="display:none;">
+                <label for="phone">Telephone :</label>
+                <input type="text" name="phone" id="phone">
+            </div>
+
+
+            <button type="submit" class="submit-btn" id="submit-stuff">Depot</button>
         </form>
     </main>
-    
+
     <footer>
-        
+
     </footer>
-    
-    <script src="script.js"></script>
+
+    <script src="<?= base_url("/script/client/form.js") ?>"></script>
 </body>
+
 </html>

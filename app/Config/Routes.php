@@ -13,6 +13,6 @@ $routes->post('/login', 'AuthController::login' , ['filter' => 'logged']);
 
 $routes->group('client' , ['filter' => 'auth'] , function ($routes) {
     $routes->get('' , 'ClientController::index');
-    $routes->get('/operation' , 'ClientController::operationPage');
-    $routes->post('/operation' , 'ClientController::operation');
+    $routes->get('operation' , 'ClientController::operationPage');
+    $routes->post('operation' , 'ClientController::operation');
 });

@@ -20,7 +20,18 @@ class FraisModel extends Model
 
     protected $useTimestamps   = false;
 
-    public function findFraisValueForMontant($montant){
-        return $this->where( 'min >=' , $montant)->where('max <' , $montant)->first()["frais_val"];
+    public function findFraisValueForMontant($montant, $operationId)
+    {
+        $result = $this
+            ->where('min <=', $montant)
+            ->where('max >', $montant)
+            ->where('operation_id', $operationId)
+            ->first();
+
+        if ($result === null) {
+            throw new \RuntimeException("Aucun bareme de frais trouvé pour operation_id={$operationId}, montant={$montant}");
+        }
+
+        return $result['frais_val'];
     }
 }

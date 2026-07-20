@@ -39,7 +39,7 @@ class TransactionModel extends Model
     public function makeDepotTransfert($data , $userId , $isDepot){
         $fraisModel  = new FraisModel();
         $montant = $isDepot ? $data['montant'] : -1 * $data['montant'];
-        $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant']);
+        $frais = $isDepot ? 0 : $fraisModel->findFraisValueForMontant($data['montant'] , $data['operation']);
         $this->save([
                 'montant' => $montant,
                 'operation_id' => $data['operation'],
@@ -51,12 +51,12 @@ class TransactionModel extends Model
     public function makeTransfert($data , $userId){
         $fraisModel = new FraisModel();
         $userModel = new UserModel();
-        $frais = $fraisModel->findFraisValueForMontant($data['montant']);
+        $frais = $fraisModel->findFraisValueForMontant($data['montant'] , $data['operation']);
         $dest = $userModel->findByNumero($data['phone']);
         $this->save([
                 'user_id' => $userId,
                 'operation_id' => $data['operation'],
-                'destination_id' => $dest['id'],
+                'destinataire_id' => $dest['id'],
                 'montant' => $data['montant'],
                 'frais_montant' => $frais,
                 'description' => $data['desc']

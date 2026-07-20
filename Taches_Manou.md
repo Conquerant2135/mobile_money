@@ -21,7 +21,7 @@
 
 ### Backend
 
-+ [ ] formulaire operation (on cherche le compte du numero cible si c'est un transfert)
++ [ ] formulaire operation (on cherche le compte du numero cible si c'est un transfert) (WIP)
   + verifier si le numero cible est valide suivant nos prefixe
   + chercher l'utilisateur du numero cible
   + calcul du montant du frais si retrait ou transfert (si transfert sur le compte de l'envoyeur)
