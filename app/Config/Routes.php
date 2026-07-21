@@ -6,7 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-$routes->get('/', 'Home::index');
+$routes->get('/', 'AuthController::loginPage' , ['filter' => 'logged']);
 $routes->get('/login', 'AuthController::loginPage' , ['filter' => 'logged']);
 $routes->get('/logout', 'AuthController::logout');
 $routes->post('/login', 'AuthController::login' , ['filter' => 'logged']);
