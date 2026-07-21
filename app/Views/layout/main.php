@@ -86,7 +86,7 @@ $pageTitle   = $pageTitle ?? 'Mobile Money';
                 </button>
                 <h1><?= esc($pageTitle) ?></h1>
             </div>
-            <form action="<?= base_url('logout') ?>" method="post">
+            <form action="<?= base_url('logout') ?>" method="GET">
                 <?= function_exists('csrf_field') ? csrf_field() : '' ?>
                 <button type="submit" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Déconnexion

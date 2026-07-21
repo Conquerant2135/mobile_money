@@ -17,7 +17,7 @@ $routes->group('client' , ['filter' => 'auth'] , function ($routes) {
     $routes->post('operation' , 'ClientController::operation');
 });
 
-//action operateur 
+//action operateur
 $routes->get('/operateur/situation_compte_client', 'ClientController::showSituationCompte');
 
 //show gain
