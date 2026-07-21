@@ -16,10 +16,7 @@ class EpargneModel extends Model
         'id_client',
         'prct',
     ];
-
-    protected $useTimestamps   = true;
     protected $dateFormat      = 'datetime';
-    protected $createdField    = 'created_at';
     protected $updatedField    = '';
 
     public function getPourcentage($idClient)

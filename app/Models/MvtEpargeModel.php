@@ -16,13 +16,11 @@ class MvtEpargeModel extends Model
       'montant',  
     ];
 
-    protected $useTimestamps   = true;
     protected $dateFormat      = 'datetime';
     protected $updatedField    = '';
 
     public function getValeurEparge($clientId) {
         $this->selectSum("montant")->where('id_client',$clientId)->groupBy('id_client');
-    
         return 5000;
     }
 
