@@ -51,13 +51,13 @@ $pageTitle   = $pageTitle ?? 'Mobile Money';
         <ul class="nav nav-pills flex-column mb-2">
             <li class="nav-item">
                 <a class="nav-link <?= $activeMenu === 'op-operations' ? 'active' : '' ?>" href="<?= base_url('operateur/operations') ?>">
-                    <i class="bi bi-diagram-3"></i> Types d'opération
+                    <i class="bi bi-diagram-3"></i>Types d'opération
+
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= $activeMenu === 'op-frais' ? 'active' : '' ?>" href="<?= base_url('operateur/frais') ?>">
-                    <i class="bi bi-percent"></i> Barèmes de frais
-                </a>
+                    <i class="bi bi-percent"></i>  Barèmes de frais               </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= $activeMenu === 'op-prefixes' ? 'active' : '' ?>" href="<?= base_url('operateur/prefixes') ?>">

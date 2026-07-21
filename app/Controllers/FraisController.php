@@ -37,7 +37,20 @@ class FraisController extends BaseController
         $data['frais_list'] = $this->fraisModel->getFraisWithOperation();
         $data['operations'] = $this->operationModel->findAll();
 
+        //verifier si il y a id operation 
+        if ($operation_id = $this->request->getGet('operation_id')) {
+            $data['frais_list'] = $this->fraisModel->getFraisWithOperationWhereIdOperation($operation_id);
+        } else {
+            $data['frais_list'] = $this->fraisModel->getFraisWithOperation();
+        }
         return view('operateur/frais/index', $data);
+    }
+
+    public function listByIdOperation($idOperation)
+    {
+        $data['frais_list'] = $this->fraisModel->getFraisOperation($idOperation);
+        $data['operations'] = $this->operationModel->findAll();
+        return view('operateur/operations/index', $data);
     }
 
     // POST : Création d'une plage de frais

@@ -35,6 +35,7 @@ $routes->group('operateur/prefixes', function($routes) {
 //crud operation
 $routes->group('operateur/operations', function($routes) {
     $routes->get('/', 'OperationController::list');
+    $routes->get('(:num)', 'OperationController::listByIdOperation/$1');
     $routes->post('create', 'OperationController::create');
     $routes->get('edit/(:num)', 'OperationController::modification/$1');
     $routes->post('update/(:num)', 'OperationController::update/$1');

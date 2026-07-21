@@ -32,6 +32,16 @@ class FraisModel extends Model
                     ->findAll();
     }
 
+    public function getFraisWithOperationWhereIdOperation($idOperation): array
+    {
+        return $this->select('frais.*, operation.nom AS operation_nom, operation.code AS operation_code')
+                    ->join('operation', 'operation.id = frais.operation_id')
+                    ->where("operation_id=",$idOperation)
+                    ->orderBy('operation.id', 'ASC')
+                    ->orderBy('frais.min', 'ASC')
+                    ->findAll();
+    }
+
     public function findFraisValueForMontant($montant, $operationId)
     {
         $result = $this
