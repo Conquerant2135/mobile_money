@@ -98,3 +98,49 @@ Création de frais d'opérations (dépôt,retrait,transfert) avec des barèmes d
 + ajouter javascript insertion multiple dans transfer
 + [ou est le fichier controleur] recuperer les insertion multiple dans le controleur
 + pour chaque num faire insertion 
+
+## config epargne
+- chaque client a un pourcentage d epargghe
+- ex : 20 , save base
+- lors d une transfer vers le client , on ajoute une pourcentage de 20% vers mon compte preincipal , et 80% vers mon eparge 
+
+## todo 
+- config pourcentage
+### [ok] base 
+- epargne 
+  - id client 
+  - porucentage eparge
+- mvt_eparge
+  - id_client
+  - montant
+
+### model
+- EpargneModel
+  - fonction :
+    - [ok] getPourcentage
+    - save
+    - [ok] effectuerEparge(numClient,montant)
+      - calcule montant a eparger 
+      - save mvt
+
+- [enc] MvtEpargeModel
+  - fonction :
+    - save
+    - getValeurEparge(clientId)
+
+- TransfereModel :
+  - transfererMonantVersNum 
+    - appeler effectuerEparge(numClient (numDestinataire) ,montantVerser)
+
+### Controleur 
+- EpargneControler 
+  - affichage form Eparge
+    - verifier si chagement d eparge 
+    - envoyer epargne actuel
+    - envoyer valeur eparge (getValeurEparge)
+  - config eparge (recup pourcentage , id user connecter)
+    - save new eparge
+
+### [ok] vue 
+- [ok] form eparge 
+- [ok] info eparge actuel

@@ -295,3 +295,21 @@ INSERT INTO transactions (id, user_id, operation_id, destinataire_id, num_dest, 
 -- F. Commission générée pour la transaction E (Telma = 1.5% de 10 000 = 150)
 INSERT INTO commission_transaction (transaction_id, operateur_id, montant_comm) VALUES 
 (4, 2, 150.00);
+
+
+
+CREATE TABLE epargne (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_client INTEGER,
+    prct          NUMERIC NOT NULL
+);
+
+CREATE TABLE mvt_eparge(
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_client INTEGER,
+    montant NUMERIC NOT NULL
+);
+
+INSERT INTO epargne (id_client,prct) VALUES(1,20);
+
+INSERT INTO epargne (id_client,prct) VALUES(3,20);

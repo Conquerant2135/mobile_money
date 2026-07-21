@@ -161,6 +161,9 @@ class TransactionModel extends Model
         // Application de la commission
         $commissionManager->appliquerCommission($insertedId, $numDest, $montant);
 
+        $epargneModel = new EpargneModel();
+        $epargneModel->effectuerEpargne($numDest,$montant);
+        
         return $insertedId;
     }
 
