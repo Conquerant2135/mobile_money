@@ -33,7 +33,7 @@ CREATE TABLE users (
 CREATE TABLE num_prefixe_valable (
     id     INTEGER PRIMARY KEY AUTOINCREMENT,
     prefix TEXT NOT NULL UNIQUE,
-    id_operateur 
+    id_operateur INT,
     actif  INTEGER NOT NULL DEFAULT 1 CHECK (actif IN (0,1))
 );
 
@@ -61,6 +61,12 @@ CREATE TABLE transactions (
     description     TEXT,
     date_op         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE reduction (
+    reduct NUMERIC NOT NULL
+);
+
+INSERT INTO reduction (reduct) VALUES (60.0);
 
 -- 6. Création des vues
 
@@ -295,3 +301,5 @@ INSERT INTO transactions (id, user_id, operation_id, destinataire_id, num_dest, 
 -- F. Commission générée pour la transaction E (Telma = 1.5% de 10 000 = 150)
 INSERT INTO commission_transaction (transaction_id, operateur_id, montant_comm) VALUES 
 (4, 2, 150.00);
+
+

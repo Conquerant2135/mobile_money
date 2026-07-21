@@ -29,6 +29,35 @@
                 </div>
             <?php endif; ?>
 
+            <!-- Encart données de test (à retirer en production) -->
+            <div class="alert alert-info small mb-4" role="alert">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Comptes de test</strong>
+                </div>
+                <table class="table table-sm table-borderless mb-0" style="font-size: 0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Rôle</th>
+                            <th>Numéro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rabe Jean</td>
+                            <td><span class="badge bg-secondary">client</span></td>
+                            <td>0341234567</td>
+                        </tr>
+                        <tr>
+                            <td>Randria Paul</td>
+                            <td><span class="badge bg-warning text-dark">opérateur</span></td>
+                            <td>0331122334</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <form action="<?= base_url('login') ?>" method="POST">
                 <?= function_exists('csrf_field') ? csrf_field() : '' ?>
 
@@ -37,7 +66,7 @@
                     <div class="input-group">
                         <span class="input-group-text bg-white"><i class="bi bi-telephone"></i></span>
                         <input type="text" class="form-control" name="phone" id="phone"
-                               placeholder="0340011100" value="<?= old('phone', '0340011100') ?>">
+                               placeholder="0340011100" value="<?= old('phone', '0341234567') ?>">
                     </div>
                 </div>
 

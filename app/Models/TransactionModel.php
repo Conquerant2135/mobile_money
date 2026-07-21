@@ -89,8 +89,12 @@ class TransactionModel extends Model
 
     public function makeTransferMultiNumero($data, $userId)
     {
+        //debuter le transaction
+        $this->db->transStart();
+
         $fraisModel = new FraisModel();
         $userModel  = new UserModel();
+        $numPrefixValableModel = new NumPrefixeValableModel();
 
         // 1. Nettoyage de la liste des numéros (suppression des champs vides)
         $phones = array_filter((array)($data['phone'] ?? []));
@@ -100,6 +104,27 @@ class TransactionModel extends Model
         }
 
         $nbPhones = count($phones);
+        // if ($nbPhones != 1) {
+        //     foreach ($phones as $numDest) {
+        //         if (!$numPrefixValableModel->isNumValid($numDest)) {
+        //             throw new RuntimeException("Impossible de faire un multitransfert avec les numeros externe",1);
+        //         }
+        //     }
+        // }
+        $montantTotal = $data['montant'];
+
+        // 2. Calcul du montant divisé par destinataire et des frais associés
+        $montantAVerser = $montantTotal / $nbPhones;
+        $fraisPourUnNum = $fraisModel->findFraisValueForMontant($montantAVerser, $data['operation']);
+
+        $fraisTotal = $fraisPourUnNum * $nbPhones;
+        $solde = $userModel->getClientWithSoldeById($userId);
+
+        // 3. Vérification du solde global
+        if ($montantTotal + $fraisTotal > $solde["solde"]) {
+            throw new RuntimeException("Le solde est insuffisant pour cette action. Votre solde : " . $solde["solde"] . " Ar | Requis : " . ($montantTotal + $fraisTotal) . " Ar");
+        }
+
         $montantTotal = $data['montant'];
 
         // 2. Calcul du montant divisé par destinataire et des frais associés
@@ -125,20 +150,29 @@ class TransactionModel extends Model
                 $data['desc'] ?? null
             );
         }
+
+        $this->db->transComplete();
     }
 
     public function transfererMonantVersNum($operationId, $montant, $frais, $idUser, $numDest, $desc)
     {
         $userModel         = new UserModel();
-        $numValidator      = new NumPrefixeValableModel();
-        $commissionManager = new CommissionTransactionModel();
-
+        $numPrefixValableModel = new NumPrefixeValableModel();
+        $reductionModel = new ReductionModel();
         // Recherche du destinataire interne
         $dest = $userModel->findByNumero($numDest);
 
+        //verifier si le numero est a nous ou pas
+        $reduction = 0;
+        if (!$numPrefixValableModel->isNumValid($numDest)) {
+            $frais = 0;
+        } else {
+            $reduction = $frais*$reductionModel->getReduction()/100;
+        }
+
         // Si le destinataire n'est ni un client interne, ni un numéro valide/reconnu d'un autre opérateur
-        if (!$dest && !$numValidator->isKnownNum($numDest)) {
-            throw new RuntimeException("Le numéro destinataire : " . $numDest . " n'est pas valide ou reconnu.");
+        if (!$numPrefixValableModel->isKnownNum($numDest) || !$dest ) {
+            throw new RuntimeException("Le numéro : " . $numDest . " n'est pas reconnu.");
         }
 
         $transactionData = [
@@ -147,20 +181,16 @@ class TransactionModel extends Model
             'destinataire_id' => $dest['id'] ?? null,
             'num_dest'        => $numDest,
             'montant'         => $montant,
-            'frais_montant'   => $frais,
+            'frais_montant'   => $frais - $reduction,
             'description'     => $desc
         ];
 
-        // Insertion et récupération de l'ID pour la commission
+        // Insertion et récupération de l'ID 
         $insertedId = $this->insert($transactionData);
 
         if (!$insertedId) {
             throw new RuntimeException("Erreur lors de l'enregistrement de la transaction pour le numéro " . $numDest);
         }
-
-        // Application de la commission
-        $commissionManager->appliquerCommission($insertedId, $numDest, $montant);
-
         return $insertedId;
     }
 
